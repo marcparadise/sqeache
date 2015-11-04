@@ -63,11 +63,6 @@ code_change(_OldVsn, State, _Extra) ->
 
 execute_request(B) when is_binary(B) ->
     Result = execute_request(binary_to_term(B)),
-
-    % Auth considerations:
-    % let's use RPC (which will have authentication) to enable a single persistent authenticator
-    % for an originating address?
-    % Hm, how will this play with NAT? Is that a concern (does RPC work over nat anyway?)
     term_to_binary(Result);
 execute_request({_, select, Statement, Args, XForm, XFormArgs}) ->
     sqerl:select(Statement, Args, XForm, XFormArgs);
