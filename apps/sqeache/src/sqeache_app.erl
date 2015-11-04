@@ -1,27 +1,15 @@
-%%%-------------------------------------------------------------------
-%% @doc sqeache public API
-%% @end
-%%%-------------------------------------------------------------------
-
--module('sqeache_app').
+-module(sqeache_app).
 
 -behaviour(application).
 
-%% Application callbacks
--export([start/2
-        ,stop/1]).
-
-%%====================================================================
-%% API
-%%====================================================================
+-export([start/2,stop/1]).
 
 start(_StartType, _StartArgs) ->
-    'sqeache_sup':start_link().
+    {ok, Port} = application:get_env(sqeache, listen_port),
+    {ok, _} = ranch:start_listener(sqeache_handler, 10,
+		ranch_tcp, [{port, Port}], sqeache_handler, []),
+    sqeache_sup:start_link().
 
-%%--------------------------------------------------------------------
 stop(_State) ->
     ok.
 
-%%====================================================================
-%% Internal functions
-%%====================================================================

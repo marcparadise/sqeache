@@ -5,7 +5,14 @@
   {mod, {'sqeache_app', []}},
   {applications,
    [kernel,
-    stdlib
+    stdlib,
+    sqerl,
+    envy,
+    pooler,
+    ranch,
+    sync,
+    syntax_tools,
+    compiler
    ]},
   {env,[]},
   {modules, []},
