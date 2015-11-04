@@ -57,7 +57,12 @@ Coming Real Soon Now. You'll need postgresql installed.
 REPL  and Doing Stuff By Hand
 -----------------------------
 Take a look at app.config and `sqeache_data.erl`, and make a DB and user
-that matches on your local postgresql.
+that matches on your local postgresql. You'll also need to make a table as follows, and make sure that the user 
+from app.config has full access to all sequences and tables in the DB: 
+
+     create table users (id serial, name varchar(255), email varchar(255), flag1 boolean, created_at timestamp, CONSTRAINT "users_pkey" PRIMARY KEY ("id"))
+
+Now build `sqeache` and start it in a console. If you did everything right, there won't be errors.  If there are, it's totally not my fault: 
 
     $ rebar3 release
     $ _build/default/rel/sqeache/bin/sqeache console
