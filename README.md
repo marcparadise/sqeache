@@ -2,7 +2,7 @@ sqeache
 =====
 
 Pronunciation: "squeesh"
-Alternative pronunciation: "squee-ash"
+Alternative pronunciation: There is only one way to pronounche 'sqeache'.
 
 A postgresql proxy via sqerl with persistent connection and prepared statement support. Currently this is a basic raw tcp proxy that converts binaries to terms and vice-versa.  It simply passes any request through to sqerl and ships it off to the requestor.
 
