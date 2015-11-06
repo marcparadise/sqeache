@@ -1,6 +1,6 @@
--name sqeache
+-name sqeache@127.0.0.1
 
--setcookie sqeache_cookie
+-setcookie sqeache
 
 +K true
 +A30
