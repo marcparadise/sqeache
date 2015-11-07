@@ -67,7 +67,7 @@ code_change(_OldVsn, State, _Extra) ->
 recv_loop(_Transport, _Socket, 0, Data) ->
     Data;
 recv_loop(Transport, Socket, RemainingLength, Data) ->
-    case Transport:recv(Socket, RemainingLength, infinite) of
+    case Transport:recv(Socket, RemainingLength, infinity) of
         {ok, MoreData} ->
             recv_loop(Transport, Socket, RemainingLength - byte_size(MoreData),
                       <<Data/binary,MoreData/binary>>);
