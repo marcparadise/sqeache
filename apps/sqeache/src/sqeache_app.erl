@@ -9,9 +9,10 @@
 start(_StartType, _StartArgs) ->
     {ok, Port} = application:get_env(sqeache, port),
     {ok, Acceptors} = application:get_env(sqeache, acceptor_count),
-    {ok, _} = ranch:start_listener(sqeache_handler,
+    {ok, _} = ranch:start_listener(sqeache,
                                    Acceptors, ranch_tcp,
-                                   [{ip, envy_parse:host_to_ip(sqeache, ip)}, {port, Port}],
+                                   % TODO - this is a short-term hack, we'll want to use raw and handle split packets.
+                                   [{ip, envy_parse:host_to_ip(sqeache, ip)}, {port, Port}], % {sndbuf,4194304},{recbuf,4194304}],
                                    sqeache_handler, []),
     sqeache_sup:start_link().
 
