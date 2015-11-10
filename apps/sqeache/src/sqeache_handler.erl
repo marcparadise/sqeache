@@ -80,11 +80,13 @@ recv_loop(Transport, Socket, RemainingLength, Data) ->
 
 
 execute_request(B) when is_binary(B) ->
+    Gonna = binary_to_term(B),
+    io:fwrite("Gonna ~p~n", [Gonna]),
     Result = execute_request(binary_to_term(B)),
     term_to_binary(Result);
-execute_request({_, select, Statement, Args, XForm, XFormArgs}) ->
-    sqerl:select(Statement, Args, XForm, XFormArgs);
-execute_request({_, statement, Statement, Args, XForm, XFormArgs}) ->
-    sqerl:statement(Statement, Args, XForm, XFormArgs);
-execute_request({_, execute, Statement, Args}) ->
-    sqerl:execute(Statement, Args ).
+execute_request({Id, select, Query, Args, XForm, XFormArgs}) ->
+    sqerl_mp:select(Id, Query, Args, XForm, XFormArgs);
+execute_request({Id, statement, Query, Args, XForm, XFormArgs}) ->
+    sqerl_mp:statement(Id,Query, Args, XForm, XFormArgs);
+execute_request({Id, execute, Query, Args}) ->
+    sqerl_mp:execute(Id, Query, Args ).
