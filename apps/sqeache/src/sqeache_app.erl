@@ -4,7 +4,7 @@
 
 -behaviour(application).
 
--export([start/2,stop/1, statements/0]).
+-export([start/2,stop/1, statements/1]).
 
 start(_StartType, _StartArgs) ->
     {ok, Port} = application:get_env(sqeache, port),
@@ -16,9 +16,10 @@ start(_StartType, _StartArgs) ->
                                    sqeache_handler, []),
     sqeache_sup:start_link().
 
-statements() ->
-    {ok, Paths} = application:get_env(sqeache, prepared_statement_files),
-    Loaded = [ file:consult(Path) || Path <- Paths],
+statements(Pool) ->
+    {ok, PoolStatementPaths} = application:get_env(sqeache, prepared_statement_files),
+    Paths = proplists:get_value(Pool, PoolStatementPaths),
+    Loaded = [file:consult(Path) || Path <- Paths],
     lists:flatten([ Statements || {ok, Statements} <- Loaded]).
 
 stop(_State) ->
