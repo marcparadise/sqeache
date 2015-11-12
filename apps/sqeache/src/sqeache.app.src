@@ -11,6 +11,7 @@
     pooler,
     ranch,
     sync,
+    folsom,
     syntax_tools,
     compiler
    ]},
