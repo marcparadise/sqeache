@@ -30,7 +30,10 @@ init([]) -> {ok, undefined}.
 init(Ref, Socket, Transport, _Opts ) ->
 	ok = proc_lib:init_ack({ok, self()}),
 	ok = ranch:accept_ack(Ref),
-    ok = Transport:setopts(Socket, [{active, once}, {packet, raw}, {send_timeout, infinity}]),
+    ok = Transport:setopts(Socket, [{active, once},
+                                    {packet, raw},
+                                    {keepalive, true},
+                                    {send_timeout, infinity}]),
 	gen_server:enter_loop(?MODULE, [],
                           #state{socket=Socket, transport=Transport},
                           infinity).
