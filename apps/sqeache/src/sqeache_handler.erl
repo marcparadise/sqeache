@@ -30,10 +30,10 @@ init([]) -> {ok, undefined}.
 init(Ref, Socket, Transport, _Opts ) ->
 	ok = proc_lib:init_ack({ok, self()}),
 	ok = ranch:accept_ack(Ref),
-    ok = Transport:setopts(Socket, [{active, once}, {packet, raw}]),
+    ok = Transport:setopts(Socket, [{active, once}, {packet, raw}, {send_timeout, infinity}]),
 	gen_server:enter_loop(?MODULE, [],
                           #state{socket=Socket, transport=Transport},
-                          ?TIMEOUT).
+                          infinity).
 
 handle_info({tcp, Socket, <<Length:32/integer,Data/binary>>},
             State=#state{ socket=Socket, transport=Transport}) ->
@@ -42,13 +42,15 @@ handle_info({tcp, Socket, <<Length:32/integer,Data/binary>>},
     ResultSize = byte_size(Result),
 	Transport:send(Socket, <<ResultSize:32/integer,Result/binary>>),
     Transport:setopts(Socket, [{active, once}]),
-	{noreply, State, ?TIMEOUT};
+	{noreply, State};
 handle_info({tcp_closed, _Socket}, State) ->
+    io:fwrite("I did not see that coming: tcp_closed~n"),
 	{stop, normal, State};
-handle_info({tcp_error, _, Reason}, State) ->
+handle_info({tcp_error, _X, Reason}, State) ->
+    io:fwrite("I did not see that coming: tcp_error: ~p ~p ~n", [_X, Reason]),
 	{stop, Reason, State};
 handle_info(timeout, State) ->
-	{stop, normal, State};
+	{noreply, State};
 handle_info(_Info, State) ->
 	{stop, normal, State}.
 
@@ -80,10 +82,12 @@ recv_loop(Transport, Socket, RemainingLength, Data) ->
 
 
 execute_request(B) when is_binary(B) ->
-    Gonna = binary_to_term(B),
-    io:fwrite("Gonna ~p~n", [Gonna]),
+    %Gonna = binary_to_term(B),
+    %io:fwrite("Gonna ~p~n", [Gonna]),
     Result = execute_request(binary_to_term(B)),
     term_to_binary(Result);
+execute_request({Id, select, Query, Args, {XForm, XFormArgs}}) ->
+    sqerl_mp:select(Id, Query, Args, XForm, XFormArgs);
 execute_request({Id, select, Query, Args, XForm, XFormArgs}) ->
     sqerl_mp:select(Id, Query, Args, XForm, XFormArgs);
 execute_request({Id, statement, Query, Args, XForm, XFormArgs}) ->

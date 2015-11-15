@@ -13,6 +13,6 @@
  {add_user, <<"INSERT INTO USERS (name, email, flag1, created_at) "
               "VALUES ($1, $2, $3, CURRENT_TIMESTAMP) "
               "RETURNING id">>},
- {delete_user_by_name, <<"DELETE FROM USERS WHERE name = $1">>},
- {delete_user_by_id, <<"DELETE FROM USERS WHERE ID = $1">>}
+ {delete_user_by_name, <<"DELETE FROM users WHERE name = $1">>},
+ {delete_user_by_id, <<"DELETE FROM users WHERE ID = $1">>}
 ].

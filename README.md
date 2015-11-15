@@ -69,10 +69,10 @@ Tests
 Coming Real Soon Now. You'll need postgresql installed.
 
 
-REPL  and Doing Stuff By Hand
+REPL and Doing Stuff By Hand
 -----------------------------
-Take a look at app.config and `sqeache_data.erl`, and make a DB and user
-that matches on your local postgresql. You'll also need to make a table as follows, and make sure that the user
+Take a look at sys.config  and make a DB and user that matches on
+your local postgresql. You'll also need to make a table as follows, and make sure that the user
 from app.config has full access to all sequences and tables in the DB:
 
      create table users (id serial, name varchar(255), email varchar(255), flag1 boolean, created_at timestamp, CONSTRAINT "users_pkey" PRIMARY KEY ("id"))
@@ -82,43 +82,42 @@ Now build `sqeache` and start it in a console. If you did everything right, ther
     $ rebar3 release
     $ _build/default/rel/sqeache/bin/sqeache console
 
-Separately, build `sqeache_client` and bring it up:
-    $ erl -pa _build/default/lib/sqeache_client
+Separately, grab `sqeache_client` and bring it up:
 
-
-We're going to save some typing until multi-conn support is added to
-postgresql and use some client shotcut functions. sel -> select,
-stat -> statement , exec -> execute
+    sqeache_client$ make
 
 Create some data:
 
-    sqeache_client:stat(add_user, [<<"Jiminy">>, <<"home@somewhere.com">>, true).
-    sqeache_client:stat(add_user, [<<"Bob">>, <<"bob@somewhere.com">>, false).
-    sqeache_client:stat(add_user, [<<"Englebert">>, <<"englebert@somewhere.com">>, true).
-
+    sqeache_client:statement(testdb, add_user, [<<"Jiminy">>, <<"home@somewhere.com">>, true]).
+    sqeache_client:statement(testdb, add_user, [<<"Bob">>, <<"bob@somewhere.com">>, false]).
+    sqeache_client:statement(testdb, add_user, [<<"Englebert">>, <<"englebert@somewhere.com">>, true]).
 
 Do a query on the fly:
 
-    sqeache_client:stat(<<"SELECT COUNT(*) FROM users">>, [],  first_as_scalar, [count]).
+    sqeache_client:statement(testdb, <<"SELECT COUNT(*) FROM users">>, [],  first_as_scalar, [count]).
+
+Or just execute something for some raw output:
+    sqeache_client:execute(testdb, <<"SELECT COUNT(*) FROM users">>, []).
 
 Do something bad that will crash the remote connection (the default
 xform for 'id'  isn't correct for this):
 
-    sqeache_client:stat(<<"SELECT COUNT(*) FROM users">>).
+    sqeache_client:statement(testdb, <<"SELECT COUNT(*) FROM users">>, []).
 
 Run something else and see that you didn't really break anything:
 
-    sqeache_client:statement(<<"SELECT COUNT(*) FROM users">>, [],  first_as_scalar, [count]).
+    sqeache_client:statement(testdb, <<"SELECT COUNT(*) FROM users">>, [],  first_as_slcalar, [count]).
 
 Look ma, more transforms:
 
-    sqeache_client:sel(fetch_users, [], first_as_scalar, [name]).
-    sqeache_client:sel(fetch_users, [], first).
-    sqeache_client:sel(fetch_users).
+    sqeache_client:select(testdb, fetch_users, [], first_as_scalar, [name]).
+    sqeache_client:select(testdb, fetch_users, [], rows_as_scalars, [name]).
+    sqeache_client:select(testdb, fetch_users, [], first).
+    sqeache_client:select(testdb, fetch_users).
 
 Even more transforms - these showing that we can pass in any record
 definition we care about, and sqeache is oblivious as long as it's
 semantically correct (just like sqerl, which is the intent):
 
-    sqeache_client:sel(fetch_users, [], first_as_record, [user, [id, name, email, flag1, created_at]]).
-    sqeache_client:sel(fetch_users, [], rows_as_records, [dweeb, [id, name, email, flag1, created_at]]).
+    sqeache_client:select(testdb, fetch_users, [], first_as_record, [user, [id, name, email, flag1, created_at]]).
+    sqeache_client:select(testdb, fetch_users, [], rows_as_records, [dweeb, [id, name, email, flag1, created_at]]).
